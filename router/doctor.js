@@ -152,6 +152,8 @@ router.post(
 );
 
 router.post("/register", register, async (req, res, next) => {
+  console.log(req.body);
+
   try {
     const { first_name, last_name, specialty, contact, email, pass1 } =
       req.body;

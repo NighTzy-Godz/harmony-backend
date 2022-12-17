@@ -137,6 +137,7 @@ router.post(
   // register,
   async (req, res, next) => {
     try {
+      console.log(req.body);
       const { first_name, last_name, contact, email, pass1 } = req.body;
       const { error } = patientRegisterValidator(req.body);
       if (error) {
@@ -177,6 +178,7 @@ router.post(
 
 router.post("/login", async (req, res, next) => {
   try {
+    console.log(req.body);
     const { error } = patientLoginValidator(req.body);
 
     if (error) {
