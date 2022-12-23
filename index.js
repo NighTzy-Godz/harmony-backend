@@ -8,7 +8,6 @@ const doctorRoute = require("./router/doctor");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 
 app.use("/patient", patientRoute);
 app.use("/doctor", doctorRoute);
