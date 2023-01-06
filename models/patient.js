@@ -5,8 +5,8 @@ const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/harmony";
 
 mongoose
   .connect(dbUrl)
-  .then(() => console.log("Connected to the database"))
-  .catch(() => console.log("Cannot Connect to the database"));
+  .then(() => console.log("Connected to the database patient"))
+  .catch((e) => console.log("Cannot Connect to the database patient", e));
 
 const patientSchema = new mongoose.Schema({
   profile_picture: {

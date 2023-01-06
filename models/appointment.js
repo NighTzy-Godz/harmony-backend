@@ -3,8 +3,8 @@ const mongoose = require("mongoose");
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/harmony";
 mongoose
   .connect(dbUrl)
-  .then(() => console.log("Connected to the database."))
-  .catch((e) => console.log("There is a problem", e));
+  .then(() => console.log("Connected to the database. Appointment"))
+  .catch((e) => console.log("There is a problem in Appointment", e));
 
 const appointmentSchema = new mongoose.Schema({
   ownedBy: {
