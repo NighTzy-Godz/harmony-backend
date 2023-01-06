@@ -5,7 +5,7 @@ const { appointmentSchema } = require("../models/appointment");
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/harmony";
 mongoose
   .connect(dbUrl)
-  .then(() => console.log("Connected to the database for DOCTOR"))
+  .then(() => console.log(`Connected to the database doctor ${dbUrl}`))
   .catch((e) =>
     console.log("There was a problem connecting to the database doctor", e)
   );
