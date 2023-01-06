@@ -8,7 +8,7 @@ function auth(req, res, next) {
     if (!token) return res.status(401).send("Forbidden. Not Authorized");
     const decoded = jwt.verify(token, jwtPrivateKey);
     req.user = decoded;
-
+    // console.log(req.user);
     next();
   } catch (e) {
     res.status(400).send("Invalid Token");

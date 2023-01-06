@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const multer = require("multer");
-// const upload = multer({ dest: "uploads/" });
+
 const { storage } = require("../cloudinary/index");
 const upload = multer({ storage });
 
@@ -10,13 +10,15 @@ const Patient = require("../models/patient");
 const Doctor = require("../models/doctor");
 const { Appointment } = require("../models/appointment");
 
-const register = require("../middleware/patientRegister");
+// const register = require("../middleware/patientRegister");
 const { auth, isPatient } = require("../middleware/auth");
 
 const {
   patientRegisterValidator,
   patientLoginValidator,
+  patientUpdateValidator,
   appointmentValidator,
+  patientChangePassValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -43,6 +45,18 @@ router.get("/search_doctor/:search", async (req, res, next) => {
 
     const doctor = await Doctor.find({ full_name: query });
     res.send(doctor);
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+router.get("/search_doc_display/:docDisplay", async (req, res, next) => {
+  try {
+    const doc = await Doctor.findById(req.params.docDisplay).select(
+      "profile_picture full_name specialty rate"
+    );
+    if (!doc) return res.status(400).send("Doctor did not found.");
+    res.send(doc);
   } catch (ex) {
     next(ex);
   }
@@ -98,6 +112,7 @@ router.post("/appointment", auth, async (req, res, next) => {
 
 router.get("/getAppointments", [auth, isPatient], async (req, res, next) => {
   try {
+    // res.send("Hello");
     const patient = await Patient.findOne({ _id: req.user._id }).select(
       "appointments"
     );
@@ -131,13 +146,78 @@ router.get(
 // ================ AUTHENTICATION AND AUTHORIZATION =======================
 // =========================================================================
 
+router.post("/change-password", [auth, isPatient], async (req, res, next) => {
+  try {
+    const { currPass, newPass, confirmPass } = req.body;
+    const { error } = patientChangePassValidator(req.body);
+    if (error) {
+      for (let item of error.details) {
+        return res.status(400).send(item.message);
+      }
+    }
+    const patient = await Patient.findOne({ _id: req.user._id }).select(
+      "password"
+    );
+    if (!patient) return res.status(400).send("User did not found.");
+
+    if (newPass !== confirmPass)
+      return res
+        .status(400)
+        .send("New Password and Confirm Password did not match.");
+
+    const validPass = await bcrypt.compare(currPass, patient.password);
+    if (!validPass)
+      return res.status(400).send("Current Password did not match.");
+
+    const salt = await bcrypt.genSalt(10);
+    patient.password = await bcrypt.hash(newPass, salt);
+
+    await patient.save();
+    res.send(patient);
+  } catch (ex) {
+    next(ex);
+  }
+});
+
+router.post(
+  "/updateAccount",
+  upload.single("img"),
+  [auth, isPatient],
+  async (req, res, next) => {
+    try {
+      const { first_name, last_name, email, contact } = req.body;
+      const { error } = patientUpdateValidator(req.body);
+      if (error) {
+        for (let item of error.details) {
+          return res.status(400).send(item.message);
+        }
+      }
+      const patient = await Patient.findOne({ _id: req.user._id });
+      if (!patient) return res.status(400).send("No Patient was found.");
+
+      patient.first_name = first_name;
+      patient.last_name = last_name;
+      patient.full_name = patient.first_name + " " + patient.last_name;
+      patient.email = email;
+      patient.contact = contact;
+      patient.profile_picture = !req.file
+        ? patient.profile_picture
+        : req.file.path;
+
+      await patient.save();
+      res.send(patient);
+    } catch (ex) {
+      next(ex);
+    }
+  }
+);
+
 router.post(
   "/register",
   upload.single("img"),
   // register,
   async (req, res, next) => {
     try {
-      console.log(req.body);
       const { first_name, last_name, contact, email, pass1 } = req.body;
       const { error } = patientRegisterValidator(req.body);
       if (error) {
