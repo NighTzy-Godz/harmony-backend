@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const { appointmentSchema } = require("./appointment");
+const { prescription_schema } = require("./prescription");
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/harmony";
 
 mongoose
@@ -29,6 +30,11 @@ const patientSchema = new mongoose.Schema({
     required: true,
   },
 
+  gender: {
+    type: String,
+    required: true,
+  },
+
   password: {
     type: String,
     required: true,
@@ -37,6 +43,10 @@ const patientSchema = new mongoose.Schema({
   full_name: {
     type: String,
     default: this.first_name + " " + this.last_name,
+  },
+
+  customId: {
+    type: String,
   },
 
   appointmentHistory: [
@@ -70,6 +80,8 @@ const patientSchema = new mongoose.Schema({
       }),
     },
   ],
+
+  prescriptions: [prescription_schema],
   appointments: [appointmentSchema],
 });
 

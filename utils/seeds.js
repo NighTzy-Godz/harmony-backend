@@ -2,12 +2,13 @@ require("dotenv").config();
 
 const mongoose = require("mongoose");
 const Doctor = require("../models/doctor");
+const Admin = require("../models/admin");
 const names = require("../helpers/firstName");
 const specialties = require("../helpers/specialties");
 const email = require("../helpers/email");
 const bcrypt = require("bcrypt");
 const gender = require("../helpers/gender");
-const firstName = require("../helpers/firstName");
+
 const dbUrl = process.env.DB_URL || "mongodb://localhost:27017/harmony";
 console.log(dbUrl);
 mongoose
@@ -29,6 +30,20 @@ function randomEmail(array) {
   return newEmail;
 }
 
+async function createAdmin() {
+  const admin = new Admin({
+    full_name: "Harmony Admin",
+    contact: "09984907193",
+    email: "ajhubero16@gmail.com",
+  });
+
+  const salt = await bcrypt.genSalt(10);
+  admin.password = await bcrypt.hash("12345", salt);
+
+  await admin.save();
+  console.log(admin);
+}
+
 async function run() {
   const doctor = new Doctor({
     first_name: randomDetails(names),
@@ -47,6 +62,6 @@ async function run() {
   console.log(doctor);
 }
 
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 40; i++) {
   run();
 }

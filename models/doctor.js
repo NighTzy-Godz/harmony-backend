@@ -70,6 +70,10 @@ const doctorSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  numberOfAppointments: {
+    type: Number,
+    default: 0,
+  },
   acceptedAppointments: [
     {
       type: new mongoose.Schema({
@@ -101,6 +105,9 @@ const doctorSchema = new mongoose.Schema({
       }),
     },
   ],
+  numberOfPatients: {
+    type: Number,
+  },
 
   requestAppointment: [appointmentSchema],
 });

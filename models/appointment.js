@@ -14,6 +14,10 @@ const appointmentSchema = new mongoose.Schema({
       contact: {
         type: String,
       },
+
+      gender: {
+        type: String,
+      },
     }),
     required: true,
   },
@@ -36,11 +40,20 @@ const appointmentSchema = new mongoose.Schema({
     required: true,
   },
 
-  // bookingDate: {
-  //   type: String,
+  duration: {
+    type: String,
+    default: "Not Yet",
+  },
 
-  //   default: Date.now,
-  // },
+  modeOfConsultation: {
+    type: String,
+  },
+
+  bookingDate: {
+    type: String,
+
+    default: Date.now,
+  },
   doctor: {
     type: new mongoose.Schema({
       name: {
@@ -52,7 +65,7 @@ const appointmentSchema = new mongoose.Schema({
       },
     }),
 
-    // required: true,
+    required: true,
   },
 });
 

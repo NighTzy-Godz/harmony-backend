@@ -12,13 +12,14 @@ const { Appointment } = require("../models/appointment");
 
 // const register = require("../middleware/patientRegister");
 const { auth, isPatient } = require("../middleware/auth");
+const { renderCustomId } = require("../helpers/customId");
 
 const {
   patientRegisterValidator,
   patientLoginValidator,
-  patientUpdateValidator,
+  userUpdateValidator,
   appointmentValidator,
-  patientChangePassValidator,
+  userChangePassValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -43,7 +44,7 @@ router.get("/search_doctor/:search", async (req, res, next) => {
   try {
     const query = new RegExp(`.*${req.params.search}.*`, "i");
 
-    const doctor = await Doctor.find({ full_name: query });
+    const doctor = await Doctor.find({ full_name: query, isConfirmed: true });
     res.send(doctor);
   } catch (ex) {
     next(ex);
@@ -87,10 +88,12 @@ router.post("/appointment", auth, async (req, res, next) => {
       amount: doctor.rate,
       time: req.body.time,
       date: req.body.date,
+      modeOfConsultation: req.body.mode_of_consultation,
       ownedBy: {
         _id: patient._id,
         name: patient.first_name + " " + patient.last_name,
         contact: patient.contact,
+        gender: patient.gender,
       },
       doctor: {
         name: doctor.first_name + " " + doctor.last_name,
@@ -142,6 +145,19 @@ router.get(
   }
 );
 
+router.get("/prescriptions", [auth, isPatient], async (req, res, next) => {
+  try {
+    const patient = await Patient.findOne({ _id: req.user._id }).select(
+      "prescriptions"
+    );
+    if (!patient) return res.status(400).send("Patient did not found.");
+
+    res.send(patient.prescriptions);
+  } catch (ex) {
+    next(ex);
+  }
+});
+
 // =========================================================================
 // ================ AUTHENTICATION AND AUTHORIZATION =======================
 // =========================================================================
@@ -149,7 +165,7 @@ router.get(
 router.post("/change-password", [auth, isPatient], async (req, res, next) => {
   try {
     const { currPass, newPass, confirmPass } = req.body;
-    const { error } = patientChangePassValidator(req.body);
+    const { error } = userChangePassValidator(req.body);
     if (error) {
       for (let item of error.details) {
         return res.status(400).send(item.message);
@@ -186,7 +202,7 @@ router.post(
   async (req, res, next) => {
     try {
       const { first_name, last_name, email, contact } = req.body;
-      const { error } = patientUpdateValidator(req.body);
+      const { error } = userUpdateValidator(req.body);
       if (error) {
         for (let item of error.details) {
           return res.status(400).send(item.message);
@@ -205,6 +221,7 @@ router.post(
         : req.file.path;
 
       await patient.save();
+      console.log(req.file);
       res.send(patient);
     } catch (ex) {
       next(ex);
@@ -218,7 +235,7 @@ router.post(
   // register,
   async (req, res, next) => {
     try {
-      const { first_name, last_name, contact, email, pass1 } = req.body;
+      const { first_name, gender, last_name, contact, email, pass1 } = req.body;
       const { error } = patientRegisterValidator(req.body);
       if (error) {
         for (let item of error.details) {
@@ -241,14 +258,16 @@ router.post(
         last_name,
         contact,
         email,
+        gender,
         full_name: first_name + " " + last_name,
+        customId: renderCustomId(7, 4),
       });
 
       const salt = await bcrypt.genSalt(10);
       patient.password = await bcrypt.hash(pass1, salt);
 
       await patient.save();
-
+      console.log(patient);
       res.send(patient);
     } catch (e) {
       next(e);
@@ -281,6 +300,7 @@ router.post("/login", async (req, res, next) => {
       return res.status(400).send("Password didn't match.");
 
     const token = patient.generateAuthToken();
+
     res
       .header("x-auth-token", token)
       .header("access-control-expose-headers", "x-auth-token")
