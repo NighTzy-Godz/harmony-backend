@@ -5,14 +5,14 @@ const dbUrl = process.env.db_url;
 
 mongoose
   .connect(dbUrl)
-  .then(() => console.log("Connected to the database - Patient"))
-  .catch((e) => console.log("Error - Pateint: ", e));
+  .then(() => console.log("Connected to the databse - Doctor"))
+  .catch((e) => console.log("Error on Doctor ", e));
 
-const patient_schema = new mongoose.Schema({
+const doctor_schema = new mongoose.Schema({
   profile_pic: {
     type: String,
     default:
-      "https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png",
+      "https://ahaliagroup.com/ahm/wp-content/uploads/2020/05/default_dr.jpg",
   },
   first_name: {
     type: String,
@@ -43,16 +43,16 @@ const patient_schema = new mongoose.Schema({
   },
 });
 
-patient_schema.methods.generateAuthToken = function () {
+doctor_schema.methods.generateAuthToken = function () {
   const today = new Date();
   const exp = new Date(today);
   exp.setDate(today.getDate() + 60);
 
   const token = jwt.sign(
     {
-      id: this._id,
+      _id: this._id,
       role: this.role,
-      full_name: this.first_name + " " + this.last_name,
+      full_name: this.full_name,
       exp: parseInt(exp.getTime() / 1000),
     },
     secretPass
@@ -60,7 +60,3 @@ patient_schema.methods.generateAuthToken = function () {
 
   return token;
 };
-
-const Patient = mongoose.model("Patient", patient_schema);
-
-module.exports = Patient;
