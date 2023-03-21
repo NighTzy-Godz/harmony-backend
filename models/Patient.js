@@ -22,6 +22,10 @@ const patient_schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  full_name: {
+    type: String,
+  },
   contact: {
     type: String,
     required: true,
