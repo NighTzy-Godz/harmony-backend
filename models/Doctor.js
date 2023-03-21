@@ -30,6 +30,10 @@ const doctor_schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  specialty: {
+    type: String,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
@@ -60,3 +64,7 @@ doctor_schema.methods.generateAuthToken = function () {
 
   return token;
 };
+
+const Doctor = mongoose.model("Doctor", doctor_schema);
+
+module.exports = Doctor;
