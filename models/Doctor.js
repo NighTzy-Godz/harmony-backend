@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const secretPass = process.env.jwtSecretPass;
 const dbUrl = process.env.db_url;
+const { Appointment, appointment_schema } = require("../models/Appointment");
 
 mongoose
   .connect(dbUrl)
@@ -18,6 +19,7 @@ const doctor_schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
   last_name: {
     type: String,
     required: true,
@@ -26,21 +28,34 @@ const doctor_schema = new mongoose.Schema({
   full_name: {
     type: String,
   },
+
+  rate: {
+    type: String,
+    default: "500",
+  },
+
   contact: {
     type: String,
     required: true,
   },
+
   specialty: {
     type: String,
     required: true,
   },
+
   email: {
     type: String,
     required: true,
   },
+
   role: {
     type: String,
+    default: "Doctor",
   },
+
+  appointments: [appointment_schema],
+
   password: {
     type: String,
     required: true,
@@ -55,7 +70,7 @@ doctor_schema.methods.generateAuthToken = function () {
   const token = jwt.sign(
     {
       _id: this._id,
-      role: this.role,
+      role: "Doctor",
       full_name: this.full_name,
       exp: parseInt(exp.getTime() / 1000),
     },

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const secretPass = process.env.jwtSecretPass;
+const { appointment_schema } = require("../models/Appointment");
 const dbUrl = process.env.db_url;
 
 mongoose
@@ -14,10 +15,12 @@ const patient_schema = new mongoose.Schema({
     default:
       "https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png",
   },
+
   first_name: {
     type: String,
     required: true,
   },
+
   last_name: {
     type: String,
     required: true,
@@ -26,17 +29,24 @@ const patient_schema = new mongoose.Schema({
   full_name: {
     type: String,
   },
+
   contact: {
     type: String,
     required: true,
   },
+
   email: {
     type: String,
     required: true,
   },
+
   role: {
     type: String,
+    default: "Patient",
   },
+
+  appointments: [appointment_schema],
+
   password: {
     type: String,
     required: true,
