@@ -7,6 +7,15 @@ const { isAuth, isDoctor } = require("../middleware/auth");
 const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
 
+router.get("/all-doctors", async (req, res, next) => {
+  try {
+    const doctors = await Doctor.find();
+    res.send(doctors);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // =========================================================================
 // =========== DECIDE WHETHER ACCEPT OR DECLINE AN APPOINTMENT =============
 // =========================================================================

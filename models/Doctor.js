@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const secretPass = process.env.jwtSecretPass;
 const dbUrl = process.env.db_url;
-const { Appointment, appointment_schema } = require("../models/Appointment");
 
 mongoose
   .connect(dbUrl)
@@ -15,6 +14,7 @@ const doctor_schema = new mongoose.Schema({
     default:
       "https://ahaliagroup.com/ahm/wp-content/uploads/2020/05/default_dr.jpg",
   },
+
   first_name: {
     type: String,
     required: true,
@@ -27,7 +27,6 @@ const doctor_schema = new mongoose.Schema({
 
   full_name: {
     type: String,
-    default: this.first_name + " " + this.last_name,
   },
 
   rate: {

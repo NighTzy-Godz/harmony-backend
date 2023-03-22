@@ -1,13 +1,12 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const secretPass = process.env.jwtSecretPass;
-const { appointment_schema } = require("../models/Appointment");
 const dbUrl = process.env.db_url;
 
 mongoose
   .connect(dbUrl)
   .then(() => console.log("Connected to the database - Patient"))
-  .catch((e) => console.log("Error - Pateint: ", e));
+  .catch((e) => console.log("Error on Pateint: ", e));
 
 const patient_schema = new mongoose.Schema({
   profile_pic: {
