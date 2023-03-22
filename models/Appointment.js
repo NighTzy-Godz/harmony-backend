@@ -31,6 +31,11 @@ const appointment_schema = new mongoose.Schema({
     required: true,
   },
 
+  time: {
+    type: String,
+    required: true,
+  },
+
   prescription: {
     type: String,
   },

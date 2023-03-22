@@ -1,9 +1,24 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-
-const { isAuth } = require("../middleware/auth");
-const Patient = require("../models/Patient");
 const router = express.Router();
+
+const { isAuth, isPatient } = require("../middleware/auth");
+const Patient = require("../models/Patient");
+
+// =========================================================================
+// ================ GET THE DATA OF THE CURRENT PATIENT ====================
+// =========================================================================
+
+router.get("/me", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const patient = await Patient.findOne({ _id: req.user._id });
+    if (!patient) return res.status(404).send("Patient did not found.");
+
+    res.send(patient);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // =========================================================================
 // =========== AUTHENTICATION AND AUTHORIZATION OF THE PATIENT =============

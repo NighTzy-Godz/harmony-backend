@@ -50,9 +50,9 @@ patient_schema.methods.generateAuthToken = function () {
 
   const token = jwt.sign(
     {
-      id: this._id,
-      role: this.role,
-      full_name: this.first_name + " " + this.last_name,
+      _id: this._id,
+      role: "Patient",
+      name: this.first_name,
       exp: parseInt(exp.getTime() / 1000),
     },
     secretPass
