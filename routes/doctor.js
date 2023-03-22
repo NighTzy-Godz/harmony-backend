@@ -3,6 +3,33 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 
 const Doctor = require("../models/Doctor");
+const { isAuth, isDoctor } = require("../middleware/auth");
+const { Appointment } = require("../models/Appointment");
+const Patient = require("../models/Patient");
+
+// =========================================================================
+// =========== DECIDE WHETHER ACCEPT OR DECLINE AN APPOINTMENT =============
+// =========================================================================
+
+router.post("/decide-appt", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const { appt_id, status } = req.body;
+
+    const appt = await Appointment.findOne({ _id: appt_id });
+    if (!appt) return res.status(404).send("Appointment did not found.");
+
+    appt.status = status;
+    await appt.save();
+    res.send(appt);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// =========================================================================
+// ============ AUTHENTICATION AND AUTHORIZATION OF THE DOCTOR =============
+// =========================================================================
+
 router.post("/register", async (req, res, next) => {
   try {
     const {

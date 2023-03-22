@@ -25,4 +25,14 @@ function isPatient(req, res, next) {
   }
 }
 
-module.exports = { isAuth, isPatient };
+function isDoctor(req, res, next) {
+  try {
+    if (req.user.role !== "Doctor")
+      return res.status(401).send("You are not a Doctor");
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { isAuth, isPatient, isDoctor };

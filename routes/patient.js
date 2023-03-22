@@ -28,7 +28,7 @@ router.get("/me", [isAuth, isPatient], async (req, res, next) => {
 
 router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
   try {
-    const { doc_id, date, time, status } = req.body;
+    const { doc_id, date, time } = req.body;
 
     let doctor = await Doctor.findOne({ _id: doc_id }).select(
       "full_name specialty profile_pic appointments"
@@ -56,7 +56,6 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
       amount: doctor.rate,
       date,
       time,
-      status,
     });
 
     doctor.appointments.push(appt);

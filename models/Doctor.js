@@ -54,7 +54,7 @@ const doctor_schema = new mongoose.Schema({
     default: "Doctor",
   },
 
-  appointments: [appointment_schema],
+  appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],
 
   password: {
     type: String,
