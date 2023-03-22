@@ -27,11 +27,17 @@ const doctor_schema = new mongoose.Schema({
 
   full_name: {
     type: String,
+    default: this.first_name + " " + this.last_name,
   },
 
   rate: {
     type: String,
     default: "500",
+  },
+
+  gender: {
+    type: String,
+    required: true,
   },
 
   contact: {

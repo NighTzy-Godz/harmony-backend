@@ -37,6 +37,7 @@ router.post("/register", async (req, res, next) => {
       last_name,
       contact,
       email,
+      gender,
       specialty,
       password,
       confirm_pass,
@@ -58,6 +59,7 @@ router.post("/register", async (req, res, next) => {
       last_name,
       contact,
       email,
+      gender,
       specialty,
       full_name: first_name + " " + last_name,
     });
