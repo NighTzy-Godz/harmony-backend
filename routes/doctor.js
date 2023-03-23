@@ -7,6 +7,10 @@ const { isAuth, isDoctor } = require("../middleware/auth");
 const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
 
+// =========================================================================
+// =================== GET ALL THE DATA OF THE DOCTORS =====================
+// =========================================================================
+
 router.get("/all-doctors", async (req, res, next) => {
   try {
     const doctors = await Doctor.find();

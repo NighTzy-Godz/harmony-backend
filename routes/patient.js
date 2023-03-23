@@ -6,6 +6,7 @@ const { isAuth, isPatient } = require("../middleware/auth");
 const Patient = require("../models/Patient");
 const { Appointment } = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
+const { patientLoginValidator } = require("../utils/formValidator");
 
 // =========================================================================
 // ================ GET THE DATA OF THE CURRENT PATIENT ====================
@@ -111,11 +112,19 @@ router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
+    const { error } = patientLoginValidator(req.body);
+    if (error) {
+      for (let item of error.details) {
+        return res.status(400).send(item.message);
+      }
+    }
+
     let patient = await Patient.findOne({ email }).select("password");
     if (!patient) return res.status(404).send("User did not found.");
 
     const validPassword = await bcrypt.compare(password, patient.password);
-    if (!validPassword) return res.status(401).send("Password did not match");
+    if (!validPassword)
+      return res.status(401).send("Credentials did not match.");
 
     const token = patient.generateAuthToken();
 
