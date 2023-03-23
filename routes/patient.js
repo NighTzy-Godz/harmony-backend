@@ -6,7 +6,10 @@ const { isAuth, isPatient } = require("../middleware/auth");
 const Patient = require("../models/Patient");
 const { Appointment } = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
-const { patientLoginValidator } = require("../utils/formValidator");
+const {
+  patientLoginValidator,
+  patientRegisterValidator,
+} = require("../utils/formValidator");
 
 // =========================================================================
 // ================ GET THE DATA OF THE CURRENT PATIENT ====================
@@ -80,6 +83,13 @@ router.post("/register", async (req, res, next) => {
   try {
     const { first_name, last_name, email, contact, confirm_pass, password } =
       req.body;
+
+    const { error } = patientRegisterValidator(req.body);
+    if (error) {
+      for (let item of error.details) {
+        return res.status(400).send(item.message);
+      }
+    }
 
     let patient = await Patient.findOne({ email });
     if (patient)
