@@ -13,6 +13,7 @@ const Patient = require("../models/Patient");
 
 router.get("/all-doctors", async (req, res, next) => {
   try {
+    console.log(req.get("X-MyHeader"));
     const doctors = await Doctor.find();
     res.send(doctors);
   } catch (err) {

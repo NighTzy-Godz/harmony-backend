@@ -1,6 +1,7 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+
 const router = express.Router();
+const bcrypt = require("bcrypt");
 
 const { isAuth, isPatient } = require("../middleware/auth");
 const Patient = require("../models/Patient");
@@ -15,11 +16,12 @@ const {
 // ================ GET THE DATA OF THE CURRENT PATIENT ====================
 // =========================================================================
 
-router.get("/me", [isAuth, isPatient], async (req, res, next) => {
+router.get("/me", [isAuth], async (req, res, next) => {
   try {
     const patient = await Patient.findOne({ _id: req.user._id });
-    if (!patient) return res.status(404).send("Patient did not found.");
+    if (!patient) return res.status(404).send("Patient not found.");
 
+    console.log(patient);
     res.send(patient);
   } catch (err) {
     next(err);
@@ -141,7 +143,7 @@ router.post("/login", async (req, res, next) => {
     res
       .header("x-auth-token", token)
       .header("access-control-expose-headers", "x-auth-token")
-      .send(patient);
+      .send(token);
   } catch (ex) {
     next(ex);
   }
