@@ -16,13 +16,31 @@ const {
 // ================ GET THE DATA OF THE CURRENT PATIENT ====================
 // =========================================================================
 
-router.get("/me", [isAuth], async (req, res, next) => {
+router.get("/me", [isAuth, isPatient], async (req, res, next) => {
   try {
-    const patient = await Patient.findOne({ _id: req.user._id });
+    const patient = await Patient.findOne({ _id: req.user._id }).populate(
+      "appointments"
+    );
     if (!patient) return res.status(404).send("Patient not found.");
 
-    console.log(patient);
     res.send(patient);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// =========================================================================
+// ============ GET THE APPOINTMENTS OF THE CURRENT PATIENT ================
+// =========================================================================
+
+router.get("/getAppointments", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const patient = await Patient.findOne({ _id: req.user._id })
+      .select("appointments")
+      .populate("appointments");
+    if (!patient) return res.status(404).send("Patient not found.");
+
+    res.send(patient.appointments);
   } catch (err) {
     next(err);
   }
@@ -37,7 +55,7 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
     const { doc_id, date, time } = req.body;
 
     let doctor = await Doctor.findOne({ _id: doc_id }).select(
-      "full_name specialty profile_pic appointments"
+      "full_name specialty profile_pic rate appointments"
     );
     if (!doctor) return res.status(404).send("Doctor did not found.");
 
@@ -64,6 +82,8 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
       time,
     });
 
+    console.log(appt);
+
     doctor.appointments.push(appt);
     patient.appointments.push(appt);
 
@@ -71,7 +91,7 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
     await doctor.save();
     await patient.save();
 
-    res.send(patient);
+    res.send(appt);
   } catch (err) {
     next(err);
   }

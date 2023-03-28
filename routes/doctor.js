@@ -8,12 +8,25 @@ const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
 
 // =========================================================================
+// =============== GET ALL THE CDATA OF THE CURRENT DOCTOR =================
+// =========================================================================
+router.get("/me", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findOne({ _id: req.user._id });
+    if (!doctor) return res.status(404).send("Doctor Did not Found.");
+
+    res.send(doctor);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
 // =================== GET ALL THE DATA OF THE DOCTORS =====================
 // =========================================================================
 
 router.get("/all-doctors", async (req, res, next) => {
   try {
-    console.log(req.get("X-MyHeader"));
     const doctors = await Doctor.find();
     res.send(doctors);
   } catch (err) {
