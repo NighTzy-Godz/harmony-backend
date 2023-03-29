@@ -8,7 +8,7 @@ const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
 
 // =========================================================================
-// =============== GET ALL THE CDATA OF THE CURRENT DOCTOR =================
+// ================ GET ALL THE DATA OF THE CURRENT DOCTOR =================
 // =========================================================================
 router.get("/me", [isAuth, isDoctor], async (req, res, next) => {
   try {
@@ -34,6 +34,24 @@ router.get("/all-doctors", async (req, res, next) => {
   }
 });
 
+router.get("/req-appts", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findOne({ _id: req.user._id })
+      .select("appointments")
+      .populate("appointments");
+
+    if (!doctor) return res.status(404).send("Doctor did not found.");
+
+    const reqAppts = doctor.appointments.filter((item) => {
+      return item.status === "Pending";
+    });
+
+    res.send(reqAppts);
+  } catch (error) {
+    next(error);
+  }
+});
+
 // =========================================================================
 // =========== DECIDE WHETHER ACCEPT OR DECLINE AN APPOINTMENT =============
 // =========================================================================
@@ -41,7 +59,7 @@ router.get("/all-doctors", async (req, res, next) => {
 router.post("/decide-appt", [isAuth, isDoctor], async (req, res, next) => {
   try {
     const { appt_id, status } = req.body;
-
+    console.log(req.body);
     const appt = await Appointment.findOne({ _id: appt_id });
     if (!appt) return res.status(404).send("Appointment did not found.");
 
