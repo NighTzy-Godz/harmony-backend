@@ -34,6 +34,10 @@ router.get("/all-doctors", async (req, res, next) => {
   }
 });
 
+// =========================================================================
+// ========= GET ALL THE REQUEST APPOINTMENTS OF THE DOCTOR ================
+// =========================================================================
+
 router.get("/req-appts", [isAuth, isDoctor], async (req, res, next) => {
   try {
     const doctor = await Doctor.findOne({ _id: req.user._id })
@@ -47,6 +51,28 @@ router.get("/req-appts", [isAuth, isDoctor], async (req, res, next) => {
     });
 
     res.send(reqAppts);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
+// ========== GET ALL THE INCOMING APPOINTMENTS OF THE DOCTOR ==============
+// =========================================================================
+
+router.get("/incoming-appts", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const doctor = await Doctor.findOne({ _id: req.user._id })
+      .select("appointments")
+      .populate("appointments");
+
+    if (!doctor) return res.status(404).send("Doctor did not found.");
+
+    const incomingAppts = doctor.appointments.filter((item) => {
+      return item.status === "Confirmed";
+    });
+
+    res.send(incomingAppts);
   } catch (error) {
     next(error);
   }
