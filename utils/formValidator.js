@@ -1,4 +1,5 @@
 const Joi = require("joi");
+Joi.objectId = require("joi-objectid")(Joi);
 
 const patientLoginValidator = (data) => {
   const schema = Joi.object({
@@ -57,4 +58,36 @@ const patientRegisterValidator = (data) => {
   return schema.validate(data);
 };
 
-module.exports = { patientLoginValidator, patientRegisterValidator };
+const prescriptionValidator = (data) => {
+  const schema = Joi.object({
+    prescription: Joi.string().min(5).required().messages({
+      "string.empty": "Prescription cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Prescription is a required field.",
+    }),
+    findings: Joi.string().required().messages({
+      "string.empty": "Password cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Password is a required field.",
+    }),
+
+    appt_id: Joi.objectId().required(),
+  });
+  return schema.validate(data);
+};
+
+const decideAppointmentValidator = (data) => {
+  const schema = Joi.object({
+    appt_id: Joi.objectId().required(),
+    status: Joi.string().required(),
+  });
+
+  return schema.validate(data);
+};
+
+module.exports = {
+  decideAppointmentValidator,
+  patientLoginValidator,
+  patientRegisterValidator,
+  prescriptionValidator,
+};

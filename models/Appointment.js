@@ -36,8 +36,18 @@ const appointment_schema = new mongoose.Schema({
     required: true,
   },
 
+  findings: {
+    type: String,
+    default: "",
+  },
+
+  mode_of_consult: {
+    type: String,
+  },
+
   prescription: {
     type: String,
+    default: "",
   },
 
   status: {

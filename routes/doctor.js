@@ -6,6 +6,10 @@ const Doctor = require("../models/Doctor");
 const { isAuth, isDoctor } = require("../middleware/auth");
 const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
+const {
+  decideAppointmentValidator,
+  prescriptionValidator,
+} = require("../utils/formValidator");
 
 // =========================================================================
 // ================ GET ALL THE DATA OF THE CURRENT DOCTOR =================
@@ -69,10 +73,38 @@ router.get("/incoming-appts", [isAuth, isDoctor], async (req, res, next) => {
     if (!doctor) return res.status(404).send("Doctor did not found.");
 
     const incomingAppts = doctor.appointments.filter((item) => {
-      return item.status === "Confirmed";
+      return item.status === "Confirmed" && item.prescription === "";
     });
 
     res.send(incomingAppts);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
+// ============= GIVE THE PRESCRIPTION AFTER THE APPOINTMENT ===============
+// =========================================================================
+
+router.post("/post-appt", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const { appt_id, prescription, findings } = req.body;
+
+    const { error } = prescriptionValidator(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
+    const appt = await Appointment.findOne({ _id: appt_id });
+    if (!appt) return res.status(404).send("Appointment did not found.");
+
+    appt.findings = findings;
+    appt.prescription = prescription;
+
+    await appt.save();
+    res.send(appt);
   } catch (error) {
     next(error);
   }
@@ -85,7 +117,14 @@ router.get("/incoming-appts", [isAuth, isDoctor], async (req, res, next) => {
 router.post("/decide-appt", [isAuth, isDoctor], async (req, res, next) => {
   try {
     const { appt_id, status } = req.body;
-    console.log(req.body);
+    const { error } = decideAppointmentValidator(req.body);
+
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
     const appt = await Appointment.findOne({ _id: appt_id });
     if (!appt) return res.status(404).send("Appointment did not found.");
 
