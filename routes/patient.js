@@ -30,6 +30,26 @@ router.get("/me", [isAuth, isPatient], async (req, res, next) => {
 });
 
 // =========================================================================
+// ============ GET THE PRESCRIPTION OF THE CURRENT PATIENT ================
+// =========================================================================
+
+router.get("/prescription", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const patient = await Patient.findOne({ _id: req.user._id })
+      .select("appointments")
+      .populate("appointments");
+    if (!patient) return res.status(404).send("Patient not found.");
+
+    const prescription = patient.appointments.filter((item) => {
+      return item.prescription !== "";
+    });
+    res.send(prescription);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// =========================================================================
 // ============ GET THE APPOINTMENTS OF THE CURRENT PATIENT ================
 // =========================================================================
 
@@ -40,7 +60,11 @@ router.get("/getAppointments", [isAuth, isPatient], async (req, res, next) => {
       .populate("appointments");
     if (!patient) return res.status(404).send("Patient not found.");
 
-    res.send(patient.appointments);
+    const validAppts = patient.appointments.filter((item) => {
+      return item.status === "Pending" || item.status === "Cancelled";
+    });
+
+    res.send(validAppts);
   } catch (err) {
     next(err);
   }
