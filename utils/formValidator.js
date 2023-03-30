@@ -66,9 +66,9 @@ const prescriptionValidator = (data) => {
       "any.required": "Prescription is a required field.",
     }),
     findings: Joi.string().required().messages({
-      "string.empty": "Password cannot be empty.",
+      "string.empty": "Findings cannot be empty.",
       "string.base": "This input should be a type of string.",
-      "any.required": "Password is a required field.",
+      "any.required": "Findings is a required field.",
     }),
 
     appt_id: Joi.objectId().required(),

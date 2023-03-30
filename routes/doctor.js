@@ -91,6 +91,8 @@ router.post("/post-appt", [isAuth, isDoctor], async (req, res, next) => {
     const { appt_id, prescription, findings } = req.body;
 
     const { error } = prescriptionValidator(req.body);
+
+    console.log(error);
     if (error) {
       for (let items of error.details) {
         return res.status(400).send(items.message);
