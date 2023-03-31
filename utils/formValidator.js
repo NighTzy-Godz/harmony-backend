@@ -58,7 +58,7 @@ const patientRegisterValidator = (data) => {
   return schema.validate(data);
 };
 
-const deleteAppointmentValidator = (data) => {
+const appointmentIdValidator = (data) => {
   const schema = Joi.object({
     appt_id: Joi.objectId().required(),
   });
@@ -93,7 +93,7 @@ const decideAppointmentValidator = (data) => {
 };
 
 module.exports = {
-  deleteAppointmentValidator,
+  appointmentIdValidator,
   decideAppointmentValidator,
   patientLoginValidator,
   patientRegisterValidator,

@@ -10,7 +10,7 @@ const Doctor = require("../models/Doctor");
 const {
   patientLoginValidator,
   patientRegisterValidator,
-  deleteAppointmentValidator,
+  appointmentIdValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -42,7 +42,7 @@ router.get("/prescription", [isAuth, isPatient], async (req, res, next) => {
     if (!patient) return res.status(404).send("Patient not found.");
 
     const prescription = patient.appointments.filter((item) => {
-      return item.prescription !== "";
+      return item.prescription !== "" && item.status !== "Done";
     });
     res.send(prescription);
   } catch (err) {
@@ -51,32 +51,25 @@ router.get("/prescription", [isAuth, isPatient], async (req, res, next) => {
 });
 
 // =========================================================================
-// ==== REMOVE THE APPOINTMENT AFTER CLICKING THE DONE OR REMOVE BUTTON ====
+// ============ GET THE MEDICAL RECORDS OF THE CURRENT PATIENT =============
 // =========================================================================
 
-router.delete(
-  "/post-appt/:appt_id",
-  [isAuth, isPatient],
-  async (req, res, next) => {
-    try {
-      const { appt_id } = req.params;
+router.get("/medical-records", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const patient = await Patient.findOne({ _id: req.user._id })
+      .select("appointments")
+      .populate("appointments");
+    if (!patient) return res.status(404).send("Patient not found.");
 
-      const { error } = deleteAppointmentValidator(req.params);
-      if (error) {
-        for (let items of error.details) {
-          return res.status(400).send(items.message);
-        }
-      }
-      const appt = await Appointment.findByIdAndDelete(appt_id);
+    const medicalRecords = patient.appointments.filter((item) => {
+      return item.status !== "Pending";
+    });
 
-      if (!appt) return res.status(404).send("Appointment did not found.");
-
-      res.send("Appointment Successfully Deleted!");
-    } catch (error) {
-      next(error);
-    }
+    res.send(medicalRecords);
+  } catch (err) {
+    next(err);
   }
-);
+});
 
 // =========================================================================
 // ============ GET THE APPOINTMENTS OF THE CURRENT PATIENT ================
@@ -136,8 +129,6 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
       mode_of_consult,
     });
 
-    console.log(appt);
-
     doctor.appointments.push(appt);
     patient.appointments.push(appt);
 
@@ -150,6 +141,38 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
     next(err);
   }
 });
+
+// =========================================================================
+// ===================== PATIENT POST PRESCRIPTION =========================
+// =========================================================================
+
+router.post(
+  "/post-prescription",
+  [isAuth, isPatient],
+  async (req, res, next) => {
+    try {
+      const { appt_id } = req.body;
+
+      const { error } = appointmentIdValidator(req.body);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const appt = await Appointment.findOne({ _id: appt_id });
+
+      if (!appt) return res.status(404).send("Appointment did not found.");
+
+      appt.status = "Done";
+      await appt.save();
+      console.log(appt);
+      res.send(appt);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // =========================================================================
 // =========== AUTHENTICATION AND AUTHORIZATION OF THE PATIENT =============
@@ -223,4 +246,31 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
+// =========================================================================
+// ==== REMOVE THE APPOINTMENT AFTER CLICKING THE DONE OR REMOVE BUTTON ====
+// =========================================================================
+
+router.delete(
+  "/post-appt/:appt_id",
+  [isAuth, isPatient],
+  async (req, res, next) => {
+    try {
+      const { appt_id } = req.params;
+
+      const { error } = appointmentIdValidator(req.params);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+      const appt = await Appointment.findByIdAndDelete(appt_id);
+
+      if (!appt) return res.status(404).send("Appointment did not found.");
+
+      res.send("Appointment Successfully Deleted!");
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 module.exports = router;
