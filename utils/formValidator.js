@@ -58,6 +58,13 @@ const patientRegisterValidator = (data) => {
   return schema.validate(data);
 };
 
+const deleteAppointmentValidator = (data) => {
+  const schema = Joi.object({
+    appt_id: Joi.objectId().required(),
+  });
+  return schema.validate(data);
+};
+
 const prescriptionValidator = (data) => {
   const schema = Joi.object({
     prescription: Joi.string().min(5).required().messages({
@@ -86,6 +93,7 @@ const decideAppointmentValidator = (data) => {
 };
 
 module.exports = {
+  deleteAppointmentValidator,
   decideAppointmentValidator,
   patientLoginValidator,
   patientRegisterValidator,

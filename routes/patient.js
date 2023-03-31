@@ -10,6 +10,7 @@ const Doctor = require("../models/Doctor");
 const {
   patientLoginValidator,
   patientRegisterValidator,
+  deleteAppointmentValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -48,6 +49,34 @@ router.get("/prescription", [isAuth, isPatient], async (req, res, next) => {
     next(err);
   }
 });
+
+// =========================================================================
+// ==== REMOVE THE APPOINTMENT AFTER CLICKING THE DONE OR REMOVE BUTTON ====
+// =========================================================================
+
+router.delete(
+  "/post-appt/:appt_id",
+  [isAuth, isPatient],
+  async (req, res, next) => {
+    try {
+      const { appt_id } = req.params;
+
+      const { error } = deleteAppointmentValidator(req.params);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+      const appt = await Appointment.findByIdAndDelete(appt_id);
+
+      if (!appt) return res.status(404).send("Appointment did not found.");
+
+      res.send("Appointment Successfully Deleted!");
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // =========================================================================
 // ============ GET THE APPOINTMENTS OF THE CURRENT PATIENT ================
