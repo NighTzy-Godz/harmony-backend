@@ -174,7 +174,7 @@ router.post(
 
       appt.status = "Done";
       await appt.save();
-      console.log(appt);
+
       res.send(appt);
     } catch (error) {
       next(error);
@@ -203,7 +203,7 @@ router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
 
     appt.status = "Cancelled";
     await appt.save();
-    console.log(appt);
+
     res.send(appt);
   } catch (error) {
     next(error);

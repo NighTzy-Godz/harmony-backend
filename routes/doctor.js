@@ -39,6 +39,21 @@ router.get("/all-doctors", async (req, res, next) => {
 });
 
 // =========================================================================
+// ============= GET DOCTOR DEPENDING ON THE PATIENT'S SEARCH ==============
+// =========================================================================
+
+router.get("/search_doc/:search", async (req, res, next) => {
+  try {
+    const query = new RegExp(`.*${req.params.search}.*`, "i");
+
+    const doctor = await Doctor.find({ full_name: query });
+    res.send(doctor);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
 // ========= GET ALL THE REQUEST APPOINTMENTS OF THE DOCTOR ================
 // =========================================================================
 
