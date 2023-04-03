@@ -11,6 +11,7 @@ const {
   patientLoginValidator,
   patientRegisterValidator,
   appointmentIdValidator,
+  appointmentValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -83,7 +84,7 @@ router.get("/getAppointments", [isAuth, isPatient], async (req, res, next) => {
     if (!patient) return res.status(404).send("Patient not found.");
 
     const validAppts = patient.appointments.filter((item) => {
-      return item.status === "Pending" || item.status === "Cancelled";
+      return item.status === "Pending";
     });
 
     res.send(validAppts);
@@ -99,6 +100,13 @@ router.get("/getAppointments", [isAuth, isPatient], async (req, res, next) => {
 router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
   try {
     const { doc_id, date, mode_of_consult, time } = req.body;
+
+    const { error } = appointmentValidator(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
 
     let doctor = await Doctor.findOne({ _id: doc_id }).select(
       "full_name specialty profile_pic rate appointments"
@@ -173,6 +181,34 @@ router.post(
     }
   }
 );
+
+// =========================================================================
+// ================== PATIENT WILL CANCEL APPOINTMENT ======================
+// =========================================================================
+
+router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const { appt_id } = req.body;
+
+    const { error } = appointmentIdValidator(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
+    const appt = await Appointment.findOne({ _id: appt_id });
+
+    if (!appt) return res.status(404).send("Appointment did not found.");
+
+    appt.status = "Cancelled";
+    await appt.save();
+    console.log(appt);
+    res.send(appt);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // =========================================================================
 // =========== AUTHENTICATION AND AUTHORIZATION OF THE PATIENT =============

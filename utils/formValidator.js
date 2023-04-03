@@ -58,6 +58,29 @@ const patientRegisterValidator = (data) => {
   return schema.validate(data);
 };
 
+const appointmentValidator = (data) => {
+  const schema = Joi.object({
+    doc_id: Joi.objectId().required(),
+    time: Joi.string().required().messages({
+      "string.empty": "Time cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Time is a required field.",
+    }),
+
+    date: Joi.string().required().messages({
+      "string.empty": "Date cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Date is a required field.",
+    }),
+
+    mode_of_consult: Joi.string().required().messages({
+      "string.empty": "Mode of Consultation cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Mode of Consultation is a required field.",
+    }),
+  });
+  return schema.validate(data);
+};
 const appointmentIdValidator = (data) => {
   const schema = Joi.object({
     appt_id: Joi.objectId().required(),
@@ -93,6 +116,7 @@ const decideAppointmentValidator = (data) => {
 };
 
 module.exports = {
+  appointmentValidator,
   appointmentIdValidator,
   decideAppointmentValidator,
   patientLoginValidator,
