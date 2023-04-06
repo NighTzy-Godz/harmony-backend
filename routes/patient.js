@@ -238,7 +238,7 @@ router.post("/update-pass", [isAuth, isPatient], async (req, res, next) => {
         .status(400)
         .send("Confirm Password and New Password did not match.");
 
-    const validPassword = await bcrypt.compare(newPass, patient.password);
+    const validPassword = await bcrypt.compare(currentPass, patient.password);
     if (!validPassword)
       return res
         .status(400)

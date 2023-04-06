@@ -9,6 +9,7 @@ const Patient = require("../models/Patient");
 const {
   decideAppointmentValidator,
   prescriptionValidator,
+  userUpdatePassword,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -154,7 +155,48 @@ router.post("/decide-appt", [isAuth, isDoctor], async (req, res, next) => {
 });
 
 // =========================================================================
-// ============ AUTHENTICATION AND AUTHORIZATION OF THE DOCTOR =============
+// ================ UPDATING THE PASSWORD OF THE DOCTOR ====================
+// =========================================================================
+
+router.post("/update-pass", [isAuth, isDoctor], async (req, res, next) => {
+  try {
+    const { currentPass, newPass, confirmPass } = req.body;
+
+    const { error } = userUpdatePassword(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
+    const doctor = await Doctor.findOne({ _id: req.user._id }).select(
+      "password"
+    );
+
+    if (!doctor) return res.status(404).send("Doctor did not found.");
+
+    if (newPass !== confirmPass) {
+      return res
+        .status(400)
+        .send("New Password and Confirm Password did not match.");
+    }
+
+    const validPassword = await bcrypt.compare(currentPass, doctor.password);
+    if (!validPassword)
+      return res.status(400).send("Current Credentials did not meet.");
+
+    const salt = await bcrypt.genSalt(10);
+    doctor.password = await bcrypt.hash(confirmPass, salt);
+
+    await doctor.save();
+    res.send(doctor);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
+// ===================== REGISTERING OF A DOCTOR ===========================
 // =========================================================================
 
 router.post("/register", async (req, res, next) => {
@@ -201,6 +243,10 @@ router.post("/register", async (req, res, next) => {
     next(ex);
   }
 });
+
+// =========================================================================
+// ======================== LOGIN OF A DOCTOR ==============================
+// =========================================================================
 
 router.post("/login", async (req, res, next) => {
   try {
