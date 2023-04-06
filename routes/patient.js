@@ -12,6 +12,7 @@ const {
   patientRegisterValidator,
   appointmentIdValidator,
   appointmentValidator,
+  userUpdatePassword,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -211,7 +212,51 @@ router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
 });
 
 // =========================================================================
-// =========== AUTHENTICATION AND AUTHORIZATION OF THE PATIENT =============
+// ==================== UPDATE PASSWORD OF PATIENT  ========================
+// =========================================================================
+
+router.post("/update-pass", [isAuth, isPatient], async (req, res, next) => {
+  try {
+    const { currentPass, newPass, confirmPass } = req.body;
+
+    const { error } = userUpdatePassword(req.body);
+
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
+    const patient = await Patient.findOne({ _id: req.user._id }).select(
+      "password"
+    );
+
+    if (!patient) return res.status(400).send("Patient did not found.");
+
+    if (newPass !== confirmPass)
+      return res
+        .status(400)
+        .send("Confirm Password and New Password did not match.");
+
+    const validPassword = await bcrypt.compare(newPass, patient.password);
+    if (!validPassword)
+      return res
+        .status(400)
+        .send("Current Password did not meet your current credentials.");
+
+    const salt = await bcrypt.genSalt(10);
+    patient.password = await bcrypt.hash(confirmPass, salt);
+
+    await patient.save();
+
+    res.send(patient);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// =========================================================================
+// ======================= REGISTER OF THE PATIENT =========================
 // =========================================================================
 
 router.post("/register", async (req, res, next) => {
@@ -252,6 +297,10 @@ router.post("/register", async (req, res, next) => {
     next(ex);
   }
 });
+
+// =========================================================================
+// ======================== LOGIN OF THE PATIENT ===========================
+// =========================================================================
 
 router.post("/login", async (req, res, next) => {
   try {

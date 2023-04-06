@@ -1,6 +1,28 @@
 const Joi = require("joi");
 Joi.objectId = require("joi-objectid")(Joi);
 
+const userUpdatePassword = (data) => {
+  const schema = Joi.object({
+    currentPass: Joi.string().required().messages({
+      "string.empty": "Password cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Password is a required field.",
+    }),
+    newPass: Joi.string().min(5).required().messages({
+      "string.empty": "Password cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Password is a required field.",
+    }),
+    confirmPass: Joi.string().min(5).required().min(5).messages({
+      "string.empty": "Password cannot be empty.",
+      "string.base": "This input should be a type of string.",
+      "any.required": "Password is a required field.",
+    }),
+  });
+
+  return schema.validate(data);
+};
+
 const patientLoginValidator = (data) => {
   const schema = Joi.object({
     email: Joi.string().min(2).required().email().messages({
@@ -122,4 +144,5 @@ module.exports = {
   patientLoginValidator,
   patientRegisterValidator,
   prescriptionValidator,
+  userUpdatePassword,
 };
