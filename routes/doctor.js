@@ -6,10 +6,16 @@ const Doctor = require("../models/Doctor");
 const { isAuth, isDoctor } = require("../middleware/auth");
 const { Appointment } = require("../models/Appointment");
 const Patient = require("../models/Patient");
+
+const { storage } = require("../cloudinary/cloudinary");
+const multer = require("multer");
+const upload = multer({ storage });
+
 const {
   decideAppointmentValidator,
   prescriptionValidator,
   userUpdatePassword,
+  userUpdateAccountValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -194,6 +200,42 @@ router.post("/update-pass", [isAuth, isDoctor], async (req, res, next) => {
     next(error);
   }
 });
+
+// =========================================================================
+// ================== UPDATING THE ACCOUNT OF A DOCTOR =====================
+// =========================================================================
+
+router.post(
+  "/update-account",
+  upload.single("img"),
+  [isAuth, isDoctor],
+  async (req, res, next) => {
+    try {
+      const { first_name, last_name, email, contact } = req.body;
+      const { error } = userUpdateAccountValidator(req.body);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const doctor = await Doctor.findOne({ _id: req.user._id });
+      if (!doctor) return res.status(404).send("Patient did not found.");
+
+      doctor.first_name = first_name;
+      doctor.last_name = last_name;
+      doctor.email = email;
+      doctor.contact = contact;
+      doctor.profile_pic = !req.file ? doctor.profile_pic : req.file.path;
+
+      await doctor.save();
+
+      res.send(doctor);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // =========================================================================
 // ===================== REGISTERING OF A DOCTOR ===========================
