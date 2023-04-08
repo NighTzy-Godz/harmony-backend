@@ -7,12 +7,17 @@ const { isAuth, isPatient } = require("../middleware/auth");
 const Patient = require("../models/Patient");
 const { Appointment } = require("../models/Appointment");
 const Doctor = require("../models/Doctor");
+const multer = require("multer");
+const { cloudinary, storage } = require("../cloudinary/cloudinary");
+const upload = multer({ storage });
+
 const {
   patientLoginValidator,
   patientRegisterValidator,
   appointmentIdValidator,
   appointmentValidator,
   userUpdatePassword,
+  userUpdateAccountValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -210,6 +215,42 @@ router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
     next(error);
   }
 });
+
+// =========================================================================
+// ==================== UPDATE ACCOUNT OF PATIENT  ========================
+// =========================================================================
+
+router.post(
+  "/update-account",
+  upload.single("img"),
+  [isAuth, isPatient],
+  async (req, res, next) => {
+    try {
+      const { first_name, last_name, email, contact } = req.body;
+      const { error } = userUpdateAccountValidator(req.body);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const patient = await Patient.findOne({ _id: req.user._id });
+      if (!patient) return res.status(404).send("Patient did not found.");
+
+      patient.first_name = first_name;
+      patient.last_name = last_name;
+      patient.email = email;
+      patient.contact = contact;
+      patient.profile_pic = !req.file ? patient.profile_pic : req.file.path;
+
+      await patient.save();
+
+      res.send(patient);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 // =========================================================================
 // ==================== UPDATE PASSWORD OF PATIENT  ========================
