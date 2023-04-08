@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const dbUrl = process.env.db_url;
+const Patient = require("./Patient");
+const Doctor = require("./Doctor");
 
 mongoose
   .connect(dbUrl)

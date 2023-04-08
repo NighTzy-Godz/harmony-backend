@@ -389,6 +389,12 @@ router.delete(
           return res.status(400).send(items.message);
         }
       }
+
+      const patient = await Patient.findByIdAndUpdate(req.user._id, {
+        $pull: { appointments: appt_id },
+      });
+      if (!patient) return res.status(404).send("Patient did not found.");
+
       const appt = await Appointment.findByIdAndDelete(appt_id);
 
       if (!appt) return res.status(404).send("Appointment did not found.");
