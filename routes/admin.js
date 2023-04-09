@@ -6,6 +6,17 @@ const { userLoginValidator } = require("../utils/formValidator");
 const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
 
+router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ _id: req.user._id });
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    res.send(admin);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
