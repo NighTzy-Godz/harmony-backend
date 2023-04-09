@@ -58,7 +58,10 @@ const doctor_schema = new mongoose.Schema({
     type: String,
     default: "Doctor",
   },
-
+  isConfirmed: {
+    type: Boolean,
+    default: false,
+  },
   appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }],
 
   password: {
@@ -72,15 +75,15 @@ doctor_schema.methods.generateAuthToken = function () {
   const exp = new Date(today);
   exp.setDate(today.getDate() + 60);
 
-  const token = jwt.sign(
-    {
-      _id: this._id,
-      role: "Doctor",
-      full_name: this.full_name,
-      exp: parseInt(exp.getTime() / 1000),
-    },
-    secretPass
-  );
+  const payload = {
+    _id: this._id,
+    role: "Doctor",
+    full_name: this.full_name,
+  };
+
+  const token = jwt.sign(payload, secretPass, {
+    expiresIn: parseInt(exp.getTime() / 1000),
+  });
 
   return token;
 };

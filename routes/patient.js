@@ -359,7 +359,7 @@ router.post("/login", async (req, res, next) => {
 
     const validPassword = await bcrypt.compare(password, patient.password);
     if (!validPassword)
-      return res.status(401).send("Credentials did not match.");
+      return res.status(400).send("Credentials did not match.");
 
     const token = patient.generateAuthToken();
 
