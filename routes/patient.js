@@ -12,7 +12,7 @@ const { cloudinary, storage } = require("../cloudinary/cloudinary");
 const upload = multer({ storage });
 
 const {
-  patientLoginValidator,
+  userLoginValidator,
   patientRegisterValidator,
   appointmentIdValidator,
   appointmentValidator,
@@ -389,7 +389,7 @@ router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    const { error } = patientLoginValidator(req.body);
+    const { error } = userLoginValidator(req.body);
     if (error) {
       for (let item of error.details) {
         return res.status(400).send(item.message);

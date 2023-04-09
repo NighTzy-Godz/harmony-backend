@@ -16,6 +16,7 @@ const {
   prescriptionValidator,
   userUpdatePassword,
   userUpdateAccountValidator,
+  userLoginValidator,
 } = require("../utils/formValidator");
 
 // =========================================================================
@@ -293,6 +294,13 @@ router.post("/register", async (req, res, next) => {
 router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
+
+    const { error } = userLoginValidator(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
 
     let doctor = await Doctor.findOne({ email }).select("password");
     if (!doctor) return res.status(404).send("Doctor Did not found.");

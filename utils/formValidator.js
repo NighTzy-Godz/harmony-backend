@@ -51,7 +51,7 @@ const userUpdateAccountValidator = (data) => {
   return schema.validate(data);
 };
 
-const patientLoginValidator = (data) => {
+const userLoginValidator = (data) => {
   const schema = Joi.object({
     email: Joi.string().min(2).required().email().messages({
       "string.empty": "Email cannot be empty.",
@@ -169,7 +169,7 @@ module.exports = {
   appointmentValidator,
   appointmentIdValidator,
   decideAppointmentValidator,
-  patientLoginValidator,
+  userLoginValidator,
   patientRegisterValidator,
   prescriptionValidator,
   userUpdatePassword,
