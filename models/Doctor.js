@@ -70,15 +70,16 @@ const doctor_schema = new mongoose.Schema({
   },
 });
 
-doctor_schema.methods.generateAuthToken = function () {
+doctor_schema.methods.generateAuthToken = function (user) {
   const today = new Date();
   const exp = new Date(today);
   exp.setDate(today.getDate() + 60);
 
   const payload = {
-    _id: this._id,
+    _id: user._id,
     role: "Doctor",
-    full_name: this.full_name,
+    full_name: user.full_name,
+    isConfirmed: user.isConfirmed,
   };
 
   const token = jwt.sign(payload, secretPass, {

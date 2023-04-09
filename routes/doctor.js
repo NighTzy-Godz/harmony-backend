@@ -318,7 +318,7 @@ router.post("/login", async (req, res, next) => {
     if (!validPassword)
       return res.status(400).send("Credentials did not match.");
 
-    const token = doctor.generateAuthToken();
+    const token = doctor.generateAuthToken(doctor);
     res
       .header("x-auth-token", token)
       .header("access-control-expose-headers", "x-auth-token")
