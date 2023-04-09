@@ -8,7 +8,7 @@ const genders = require("../helpers/gender");
 const specialties = require("../helpers/specialties");
 const Doctor = require("../models/Doctor");
 const bcrypt = require("bcrypt");
-
+const Admin = require("../models/Admin");
 mongoose
   .connect(dbUrl)
   .then(() => console.log("Seeds Doctor - Connected"))
@@ -29,24 +29,19 @@ function randomEmail() {
 }
 
 async function run() {
-  for (let i = 0; i < 50; i++) {
-    let doctor = new Doctor({
-      first_name: randomData(names),
-      last_name: randomData(names),
-      gender: randomData(genders),
-      contact: randomContact(),
-      specialty: randomData(specialties),
-      email: randomEmail(),
-      rate: 550,
-      role: "Doctor",
-    });
+  let admin = new Admin({
+    first_name: "Harmony",
+    last_name: "Admin",
+    contact: randomContact(),
+    email: "harmonyadmin@gmail.com",
+    role: "Admin",
+  });
 
-    const salt = await bcrypt.genSalt(10);
-    doctor.password = await bcrypt.hash("test123", salt);
-    doctor.full_name = doctor.first_name + " " + doctor.last_name;
+  const salt = await bcrypt.genSalt(10);
+  admin.password = await bcrypt.hash("test123", salt);
+  admin.full_name = admin.first_name + " " + admin.last_name;
 
-    await doctor.save();
-  }
+  await admin.save();
 }
 
 run();
