@@ -14,6 +14,16 @@ function isAuth(req, res, next) {
   }
 }
 
+function isAdmin(req, res, next) {
+  try {
+    if (req.user.role !== "Admin")
+      return res.status(401).send("You are not an Admin.");
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 function isPatient(req, res, next) {
   try {
     if (req.user.role !== "Patient")
@@ -34,4 +44,4 @@ function isDoctor(req, res, next) {
   }
 }
 
-module.exports = { isAuth, isPatient, isDoctor };
+module.exports = { isAuth, isAdmin, isPatient, isDoctor };
