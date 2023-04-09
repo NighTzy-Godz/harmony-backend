@@ -18,6 +18,7 @@ const {
   userUpdateAccountValidator,
   userLoginValidator,
 } = require("../utils/formValidator");
+const Admin = require("../models/Admin");
 
 // =========================================================================
 // ================ GET ALL THE DATA OF THE CURRENT DOCTOR =================
@@ -255,16 +256,22 @@ router.post("/register", async (req, res, next) => {
       confirm_pass,
     } = req.body;
 
+    if (confirm_pass !== password)
+      return res
+        .status(400)
+        .send("Confirm Password and Password did not match.");
+
     let doctor = await Doctor.findOne({ email });
     if (doctor)
       return res
         .status(409)
         .send("A User with this email is already registered.");
 
-    if (confirm_pass !== password)
-      return res
-        .status(400)
-        .send("Confirm Password and Password did not match.");
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfDoctors")
+      .populate("listOfDoctors");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
 
     doctor = new Doctor({
       first_name,
@@ -279,7 +286,9 @@ router.post("/register", async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     doctor.password = await bcrypt.hash(password, salt);
 
+    admin.listOfDoctors.push(doctor);
     await doctor.save();
+    await admin.save();
 
     res.send(doctor);
   } catch (ex) {

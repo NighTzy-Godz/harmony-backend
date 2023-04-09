@@ -19,6 +19,7 @@ const {
   userUpdatePassword,
   userUpdateAccountValidator,
 } = require("../utils/formValidator");
+const Admin = require("../models/Admin");
 
 // =========================================================================
 // ================ GET THE DATA OF THE CURRENT PATIENT ====================
@@ -124,6 +125,11 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
     );
     if (!patient) return res.status(404).send("Patient did not found.");
 
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfAppointments")
+      .populate("listOfAppointments");
+    if (!admin) return res.status(404).send("Patient did not found.");
+
     let appt = new Appointment({
       doctor: {
         _id: doctor._id,
@@ -145,6 +151,7 @@ router.post("/request-appt", [isAuth, isPatient], async (req, res, next) => {
 
     doctor.appointments.push(appt);
     patient.appointments.push(appt);
+    admin.listOfAppointments.push(appt);
 
     await appt.save();
     await doctor.save();
@@ -353,15 +360,14 @@ router.post("/register", async (req, res, next) => {
         return res.status(400).send(item.message);
       }
     }
-
-    let patient = await Patient.findOne({ email });
-    if (patient)
-      return res.status(409).send("This email is already registered.");
-
     if (confirm_pass !== password)
       return res
         .status(400)
         .send("Confirm Password and Password did not match.");
+
+    let patient = await Patient.findOne({ email });
+    if (patient)
+      return res.status(409).send("This email is already registered.");
 
     patient = new Patient({
       first_name,
@@ -374,7 +380,15 @@ router.post("/register", async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     patient.password = await bcrypt.hash(password, salt);
 
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfPatients")
+      .populate("listOfPatients");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    admin.listOfPatients.push(patient);
     await patient.save();
+    await admin.save();
     res.send(patient);
   } catch (ex) {
     next(ex);
