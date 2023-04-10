@@ -8,6 +8,9 @@ const {
 } = require("../utils/formValidator");
 const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
+const { storage } = require("../cloudinary/cloudinary");
+const multer = require("multer");
+const upload = multer({ storage });
 
 router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
   try {
@@ -53,6 +56,38 @@ router.post("/update-pass", [isAuth, isAdmin], async (req, res, next) => {
     next(error);
   }
 });
+
+router.post(
+  "/update-account",
+  upload.single("img"),
+  [isAuth, isAdmin],
+  async (req, res, next) => {
+    try {
+      const { first_name, last_name, email, contact } = req.body;
+      const { error } = userUpdateAccountValidator(req.body);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const admin = await Admin.findOne({ _id: req.user._id });
+      if (!admin) return res.status(404).send("Patient did not found.");
+
+      admin.first_name = first_name;
+      admin.last_name = last_name;
+      admin.email = email;
+      admin.contact = contact;
+      admin.profile_pic = !req.file ? admin.profile_pic : req.file.path;
+
+      await admin.save();
+
+      res.send(admin);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 router.post("/login", async (req, res, next) => {
   try {
