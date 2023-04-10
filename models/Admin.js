@@ -9,6 +9,8 @@ mongoose
 const adminSchema = new mongoose.Schema({
   profile_pic: {
     type: String,
+    default:
+      "https://res.cloudinary.com/doggodoggo228/image/upload/v1681091805/z5y8gnfzvcmfzdb8a2xc.png",
   },
   first_name: {
     type: String,
