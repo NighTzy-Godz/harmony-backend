@@ -25,6 +25,11 @@ const adminSchema = new mongoose.Schema({
     type: String,
   },
 
+  contact: {
+    type: String,
+    required: true,
+  },
+
   email: {
     type: String,
     required: true,
