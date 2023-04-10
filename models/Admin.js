@@ -7,6 +7,9 @@ mongoose
   .catch((e) => console.log(e, "Admin"));
 
 const adminSchema = new mongoose.Schema({
+  profile_pic: {
+    type: String,
+  },
   first_name: {
     type: String,
     required: true,
