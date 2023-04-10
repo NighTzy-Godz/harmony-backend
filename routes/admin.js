@@ -5,6 +5,7 @@ const { isAuth, isAdmin } = require("../middleware/auth");
 const {
   userLoginValidator,
   userUpdatePassword,
+  userUpdateAccountValidator,
 } = require("../utils/formValidator");
 const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
@@ -18,6 +19,24 @@ router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
     if (!admin) return res.status(404).send("Admin did not found.");
 
     res.send(admin);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/incoming-appts", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfAppointments")
+      .populate("listOfAppointments");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    const incomingAppts = admin.listOfAppointments.filter((item) => {
+      return item.status === "Pending";
+    });
+
+    return res.send(incomingAppts);
   } catch (error) {
     next(error);
   }
