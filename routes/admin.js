@@ -24,6 +24,24 @@ router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
   }
 });
 
+router.get("/past-appts", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfAppointments")
+      .populate("listOfAppointments");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    const pastAppts = admin.listOfAppointments.filter((item) => {
+      return item.status !== "Pending";
+    });
+
+    return res.send(pastAppts);
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.get("/incoming-appts", [isAuth, isAdmin], async (req, res, next) => {
   try {
     const admin = await Admin.findOne({ email: process.env.admin_email })

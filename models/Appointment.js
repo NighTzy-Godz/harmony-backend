@@ -40,7 +40,7 @@ const appointment_schema = new mongoose.Schema({
 
   findings: {
     type: String,
-    default: "",
+    default: "None",
   },
 
   mode_of_consult: {
