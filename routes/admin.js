@@ -11,6 +11,7 @@ const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
 const { storage } = require("../cloudinary/cloudinary");
 const multer = require("multer");
+const { appointmentIdValidator } = require("../utils/formValidator");
 const upload = multer({ storage });
 
 router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
@@ -55,6 +56,20 @@ router.get("/incoming-appts", [isAuth, isAdmin], async (req, res, next) => {
     });
 
     return res.send(incomingAppts);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/all-patients", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfPatients")
+      .populate("listOfPatients");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    return res.send(admin.listOfPatients);
   } catch (error) {
     next(error);
   }
