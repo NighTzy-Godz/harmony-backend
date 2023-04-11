@@ -70,7 +70,7 @@ router.get("/medical-records", [isAuth, isPatient], async (req, res, next) => {
     if (!patient) return res.status(404).send("Patient not found.");
 
     const medicalRecords = patient.appointments.filter((item) => {
-      return item.status !== "For Records" && item.status !== "Pending";
+      return !item.forRecords;
     });
 
     res.send(medicalRecords);
@@ -253,7 +253,7 @@ router.post(
         return appt._id.toString() !== appt_id;
       });
 
-      appt.status = "For Records";
+      appt.forRecords = true;
       patient.appointments = newAppts;
       await patient.save();
       await appt.save();

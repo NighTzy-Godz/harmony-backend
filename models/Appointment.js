@@ -52,6 +52,11 @@ const appointment_schema = new mongoose.Schema({
     default: "",
   },
 
+  forRecords: {
+    type: Boolean,
+    default: false,
+  },
+
   status: {
     type: String,
     default: "Pending",
