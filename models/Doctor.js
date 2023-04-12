@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const { Appointment } = require("./Appointment");
 const secretPass = process.env.jwtSecretPass;
 const dbUrl = process.env.db_url;
 
@@ -68,6 +69,19 @@ const doctor_schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+});
+
+doctor_schema.post("findOneAndDelete", async function (doc) {
+  try {
+    if (doc) {
+      await Appointment.deleteMany({
+        id: { $in: doc.appointments },
+        status: "Pending",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 doctor_schema.methods.generateAuthToken = function (user) {

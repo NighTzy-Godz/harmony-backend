@@ -14,7 +14,7 @@ const upload = multer({ storage });
 const {
   userLoginValidator,
   patientRegisterValidator,
-  appointmentIdValidator,
+  documentIdValidator,
   appointmentValidator,
   userUpdatePassword,
   userUpdateAccountValidator,
@@ -174,7 +174,7 @@ router.post(
     try {
       const { appt_id } = req.body;
 
-      const { error } = appointmentIdValidator(req.body);
+      const { error } = documentIdValidator(req.body);
       if (error) {
         for (let items of error.details) {
           return res.status(400).send(items.message);
@@ -203,7 +203,7 @@ router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
   try {
     const { appt_id } = req.body;
 
-    const { error } = appointmentIdValidator(req.body);
+    const { error } = documentIdValidator(req.body);
     if (error) {
       for (let items of error.details) {
         return res.status(400).send(items.message);
@@ -234,7 +234,7 @@ router.post(
     try {
       const { appt_id } = req.params;
 
-      const { error } = appointmentIdValidator(req.params);
+      const { error } = documentIdValidator(req.params);
 
       if (error) {
         for (let items of error.details) {

@@ -239,4 +239,29 @@ router.delete(
   }
 );
 
+router.delete(
+  "/banDoctor/:document_id",
+  [isAuth, isAdmin],
+  async (req, res, next) => {
+    try {
+      const { document_id } = req.params;
+
+      const { error } = documentIdValidator(req.params);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const doctor = await Doctor.findByIdAndDelete(document_id);
+      if (!doctor) return res.status(404).send("Doctor did not found.");
+      console.log(doctor);
+
+      res.send(doctor);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 module.exports = router;
