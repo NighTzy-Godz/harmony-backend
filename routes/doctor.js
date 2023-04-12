@@ -41,7 +41,11 @@ router.get("/me", [isAuth, isDoctor], async (req, res, next) => {
 router.get("/all-doctors", async (req, res, next) => {
   try {
     const doctors = await Doctor.find();
-    res.send(doctors);
+
+    const confirmedDoc = doctors.filter((doc) => {
+      return doc.isConfirmed;
+    });
+    res.send(confirmedDoc);
   } catch (err) {
     next(err);
   }
