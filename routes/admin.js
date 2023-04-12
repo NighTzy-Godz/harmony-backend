@@ -11,7 +11,8 @@ const Admin = require("../models/Admin");
 const bcrypt = require("bcrypt");
 const { storage } = require("../cloudinary/cloudinary");
 const multer = require("multer");
-const { appointmentIdValidator } = require("../utils/formValidator");
+const { documentIdValidator } = require("../utils/formValidator");
+const Patient = require("../models/Patient");
 const upload = multer({ storage });
 
 router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
@@ -168,5 +169,29 @@ router.post("/login", async (req, res, next) => {
     next(error);
   }
 });
+
+router.delete(
+  "/banPatient/:document_id",
+  [isAuth, isAdmin],
+  async (req, res, next) => {
+    try {
+      const { document_id } = req.params;
+      console.log(req.params);
+      const { error } = documentIdValidator(req.params);
+      if (error) {
+        for (let items of error.details) {
+          return res.status(400).send(items.message);
+        }
+      }
+
+      const patient = await Patient.findByIdAndDelete(document_id);
+      if (!patient) return res.status(404).send("Patient did not found.");
+
+      res.send(patient);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 module.exports = router;

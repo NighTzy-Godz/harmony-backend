@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const secretPass = process.env.jwtSecretPass;
 const dbUrl = process.env.db_url;
+const { Appointment } = require("./Appointment");
 
 mongoose
   .connect(dbUrl)
@@ -50,6 +51,19 @@ const patient_schema = new mongoose.Schema({
     type: String,
     required: true,
   },
+});
+
+patient_schema.post("findOneAndDelete", async function (patient) {
+  try {
+    if (patient) {
+      const deletedAppt = await Appointment.deleteMany({
+        _id: { $in: patient.appointments },
+        status: "Pending",
+      });
+    }
+  } catch (error) {
+    console.log("Error in Deleting ", err);
+  }
 });
 
 patient_schema.methods.generateAuthToken = function () {

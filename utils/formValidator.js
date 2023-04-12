@@ -131,9 +131,9 @@ const appointmentValidator = (data) => {
   });
   return schema.validate(data);
 };
-const appointmentIdValidator = (data) => {
+const documentIdValidator = (data) => {
   const schema = Joi.object({
-    appt_id: Joi.objectId().required(),
+    document_id: Joi.objectId().required(),
   });
   return schema.validate(data);
 };
@@ -167,7 +167,7 @@ const decideAppointmentValidator = (data) => {
 
 module.exports = {
   appointmentValidator,
-  appointmentIdValidator,
+  documentIdValidator,
   decideAppointmentValidator,
   userLoginValidator,
   patientRegisterValidator,

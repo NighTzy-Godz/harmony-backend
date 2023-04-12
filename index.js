@@ -22,13 +22,6 @@ app.use("/patient", patient_route);
 app.use("/doctor", doctor_route);
 
 app.use(function (req, res, next) {
-  console.log("i should run");
-  res.header("X-MyHeader", "my-value");
-  console.log(res.getHeaders(), "line 21 index.js");
-  next();
-});
-
-app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Method");
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
