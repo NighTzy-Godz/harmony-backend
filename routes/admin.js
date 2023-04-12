@@ -13,6 +13,7 @@ const { storage } = require("../cloudinary/cloudinary");
 const multer = require("multer");
 const { documentIdValidator } = require("../utils/formValidator");
 const Patient = require("../models/Patient");
+const Doctor = require("../models/Doctor");
 const upload = multer({ storage });
 
 router.get("/me", [isAuth, isAdmin], async (req, res, next) => {
@@ -71,6 +72,50 @@ router.get("/all-patients", [isAuth, isAdmin], async (req, res, next) => {
     if (!admin) return res.status(404).send("Admin did not found.");
 
     return res.send(admin.listOfPatients);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/unconfirmedDoctors", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const admin = await Admin.findOne({ email: process.env.admin_email })
+      .select("listOfDoctors")
+      .populate("listOfDoctors");
+
+    if (!admin) return res.status(404).send("Admin did not found.");
+
+    const unconfirmedDoctors = admin.listOfDoctors.filter((docs) => {
+      return !docs.isConfirmed;
+    });
+
+    return res.send(unconfirmedDoctors);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/acceptDoctor", [isAuth, isAdmin], async (req, res, next) => {
+  try {
+    const { document_id } = req.body;
+    const { error } = documentIdValidator(req.body);
+    if (error) {
+      for (let items of error.details) {
+        return res.status(400).send(items.message);
+      }
+    }
+
+    const doctor = await Doctor.findOne({ _id: document_id }).select(
+      "isConfirmed"
+    );
+
+    if (!doctor) return res.status(404).send("Doctor did not found.");
+
+    doctor.isConfirmed = true;
+
+    await doctor.save();
+
+    res.send(doctor);
   } catch (error) {
     next(error);
   }
