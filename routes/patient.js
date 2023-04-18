@@ -201,7 +201,7 @@ router.post(
 
 router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
   try {
-    const { appt_id } = req.body;
+    const { document_id } = req.body;
 
     const { error } = documentIdValidator(req.body);
     if (error) {
@@ -210,7 +210,7 @@ router.post("/cancel-appt", [isAuth, isPatient], async (req, res, next) => {
       }
     }
 
-    const appt = await Appointment.findOne({ _id: appt_id });
+    const appt = await Appointment.findOne({ _id: document_id });
 
     if (!appt) return res.status(404).send("Appointment did not found.");
 

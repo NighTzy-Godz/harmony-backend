@@ -75,7 +75,7 @@ doctor_schema.post("findOneAndDelete", async function (doc) {
   try {
     if (doc) {
       await Appointment.deleteMany({
-        id: { $in: doc.appointments },
+        _id: { $in: doc.appointments },
         status: "Pending",
       });
     }
