@@ -30,6 +30,18 @@ function randomEmail() {
 }
 
 async function run() {
+  // const admin = new Admin({
+  //   first_name: "Harmony",
+  //   last_name: "Admin",
+  //   contact: "09124567890",
+  //   email: process.env.admin_email,
+  //   role: "Admin",
+  // });
+  // const salt = await bcrypt.genSalt(10);
+  // admin.password = await bcrypt.hash("test123", salt);
+  // admin.full_name = admin.first_name + " " + admin.last_name;
+
+  // await admin.save();
   let admin = await Admin.findOne({ email: process.env.admin_email });
   if (!admin) return;
 
