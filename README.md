@@ -21,6 +21,7 @@ This project repository contains the code for the server-side or backend of the 
   - [Doctor Endpoints](#doctor-endpoints)
   - [Admin Endpoints](#admin-endpoints)
 - [Environment Variables](#environment-variables)
+- [Crucial Part (Must Read)](#crucial-part)
 
 ## Technologies Used
 
@@ -144,13 +145,14 @@ The following environment variables are required to run the Hospital Management 
 >**Note**
 > Please refer on [Cloudinary Section](#cloudinary-instructions) on how to get the variables that starts with **CLOUDINARY**. Also you need those 3 cloudinary variables in order to work the images that you will upload on the server.
 
-# CRUCIAL
+## CRUCIAL PART
 
 After you finished all the Installations, environment variables, you must configure the admin first, because when you register on patient / doctor without the admin, it will throw an error saying `Admin did not found`.
 
-So in your root directory, go to the folder `util` and find the `seeds.js`. Change the value depending on your needs, kindly look at the image below for reference.
-![Instructions]
+So in your root directory, go to the `utils` folder and find the `seeds.js`. Change the value depending on your needs, kindly look at the image below for reference.
+<img src="https://raw.githubusercontent.com/NighTzy-Godz/random/master/carbon.png" width="100%"  height="500px" >
 
+After that, you are now good to go and use the whole application.
 ## Contact
 
 If you have any questions or suggestions, please contact me at ajhubero16@gmail.com. I'll be happy to hear suggestions from you!
