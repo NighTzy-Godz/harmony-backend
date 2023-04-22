@@ -127,7 +127,6 @@ POST Methods:
 - `POST admin/update-account` - Admin will update their account information.
 - `POST admin/update-pass` - Admin will update their password
 - `POST admin/login` - Admin login route.
-- `POST admin/register` - Admin register route.
 
 
 # Environment Variables
@@ -144,6 +143,13 @@ The following environment variables are required to run the Hospital Management 
 
 >**Note**
 > Please refer on [Cloudinary Section](#cloudinary-instructions) on how to get the variables that starts with **CLOUDINARY**. Also you need those 3 cloudinary variables in order to work the images that you will upload on the server.
+
+# CRUCIAL
+
+After you finished all the Installations, environment variables, you must configure the admin first, because when you register on patient / doctor without the admin, it will throw an error saying `Admin did not found`.
+
+So in your root directory, go to the folder `util` and find the `seeds.js`. Change the value depending on your needs, kindly look at the image below for reference.
+![Instructions]
 
 ## Contact
 
