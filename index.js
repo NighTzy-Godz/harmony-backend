@@ -16,17 +16,20 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Method");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
+});
+
 app.use("/admin", admin_route);
 app.use("/patient", patient_route);
 
 app.use("/doctor", doctor_route);
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Method");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  next();
-});
+
 
 const PORT = process.env.PORT || 8080;
 
